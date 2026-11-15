@@ -27,7 +27,7 @@
 
 ### 方式一：油猴脚本安装（最推荐，简单快捷）
 1. 确保浏览器已安装脚本管理器：[Tampermonkey (篡改猴)](https://www.tampermonkey.net/) 或 [Violentmonkey (暴力猴)](https://violentmonkey.github.io/)；
-2. 安装项目内的脚本：打开本仓库的 [`youku-pause-ad-killer.user.js`](https://github.com/wxyhaha/web-video-clean-overlay/raw/main/youku-pause-ad-killer.user.js) 点击安装（或前往 Greasy Fork 安装）；
+2. 一键安装脚本：前往 **[Greasy Fork 脚本主页](https://greasyfork.org/zh-CN/scripts/605610-%E4%BC%98%E9%85%B7%E8%A7%86%E9%A2%91%E6%9A%82%E5%81%9C%E5%B9%BF%E5%91%8A%E6%B8%85%E9%99%A4%E5%99%A8-youku-pause-ad-killer)** 点击绿色「安装此脚本」按钮；
 3. **重要提示（Edge / Chrome 新版用户）**：
    - 打开浏览器扩展管理页面（`edge://extensions/` 或 `chrome://extensions/`）；
    - 找到 Tampermonkey 的「详细信息」；
