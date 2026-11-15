@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         优酷视频暂停广告清除器 (Youku Pause Ad Killer)
 // @namespace    https://github.com/wxyhaha/web-video-clean-overlay
-// @version      1.0.0
+// @version      1.0.1
 // @description  专为优酷 VIP 用户打造，在视频暂停时自动清除大幅广告/推荐浮层，不影响正常播放、字幕与点击恢复
 // @author       wxyhaha
 // @match        *://*.youku.com/*
@@ -15,7 +15,7 @@
 (function() {
     'use strict';
 
-    // 1. 静态样式层：在页面加载早期注入，毫秒级隐式消除，杜绝广告闪烁
+    // 1. 全局最强静态规则注入（覆盖 #click-close, .ad-effect 等最新特征）
     const cssRules = `
         #click-close,
         .ad-effect,
@@ -36,16 +36,7 @@
         .yk-pause-layer,
         .h5player-paused-content,
         div[class*="pause-ad"],
-        div[class*="ad-pause"],
-        div[class*="pauseAd"],
-        div[class*="PauseAd"],
-        div[class*="pause_ad"],
-        div[id*="pause-ad"],
-        div[id*="pause_ad"],
-        .h5-ext-layer div[class*="pause"],
-        .h5-ext-layer div[class*="ad-"],
-        .h5-ext-layer div[class*="-ad"],
-        .yk-pause-ad-killed {
+        div[class*="ad-pause"] {
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
@@ -57,17 +48,19 @@
         }
     `;
 
-    if (typeof GM_addStyle !== 'undefined') {
-        GM_addStyle(cssRules);
-    } else {
-        const style = document.createElement('style');
-        style.textContent = cssRules;
-        (document.head || document.documentElement).appendChild(style);
+    function injectStyle() {
+        if (typeof GM_addStyle !== 'undefined') {
+            GM_addStyle(cssRules);
+        } else {
+            const style = document.createElement('style');
+            style.textContent = cssRules;
+            (document.head || document.documentElement).appendChild(style);
+        }
     }
+    injectStyle();
 
-    // 2. 动态扫描与自动关闭逻辑
-    const CLOSE_TEXTS = new Set(['×', '✕', '✖', 'X', '关闭', '关闭广告', '跳过', '跳过广告']);
-    const STATIC_SELECTORS = [
+    // 2. 毫秒级高频扫描与自动关闭
+    const AD_SELECTORS = [
         '#click-close',
         '.ad-effect',
         '.ad-effect-details',
@@ -83,56 +76,31 @@
         'div[sourcetype*="Sbanner"]'
     ];
 
-    function findCloseButton(el) {
-        const directClose = el.querySelector('[class*="close" i], [id*="close" i], [aria-label*="关闭"], [title*="关闭"]');
-        if (directClose) return directClose;
-
-        for (const node of el.querySelectorAll('button, a, span, div, i, em, svg')) {
-            const text = (node.textContent || '').trim();
-            if (CLOSE_TEXTS.has(text) || CLOSE_TEXTS.has(text.toUpperCase())) {
-                return node;
-            }
-        }
-        return null;
-    }
-
-    function killPauseAds() {
-        for (const selector of STATIC_SELECTORS) {
-            document.querySelectorAll(selector).forEach(el => {
-                if (el.dataset.ykKilled === '1') return;
-
-                // 尝试模拟点击其关闭按钮
-                const closeBtn = findCloseButton(el);
+    function killAds() {
+        for (const sel of AD_SELECTORS) {
+            document.querySelectorAll(sel).forEach(el => {
+                const closeBtn = el.querySelector('[class*="close" i], [title*="关闭"]');
                 if (closeBtn && typeof closeBtn.click === 'function') {
-                    try { closeBtn.click(); } catch(e) {}
+                    try { closeBtn.click(); } catch (e) {}
                 }
-
-                // 强制隐藏并标记
-                el.classList.add('yk-pause-ad-killed');
                 el.style.setProperty('display', 'none', 'important');
-                el.dataset.ykKilled = '1';
+                el.style.setProperty('visibility', 'hidden', 'important');
+                el.style.setProperty('width', '0px', 'important');
+                el.style.setProperty('height', '0px', 'important');
             });
         }
     }
 
-    // 3. 监听视频暂停事件与 DOM 变化
-    document.addEventListener('pause', (e) => {
-        if (e.target instanceof HTMLVideoElement) {
-            killPauseAds();
-            [80, 200, 500, 1000].forEach(delay => setTimeout(killPauseAds, delay));
-        }
+    // 3. 轮询兜底与事件监听
+    setInterval(killAds, 250);
+
+    document.addEventListener('pause', () => {
+        killAds();
+        [50, 150, 300, 600, 1000].forEach(t => setTimeout(killAds, t));
     }, true);
 
-    const observer = new MutationObserver(() => killPauseAds());
-    const startObserver = () => {
-        if (document.body) {
-            observer.observe(document.body, { childList: true, subtree: true });
-        }
-    };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startObserver);
-    } else {
-        startObserver();
+    const observer = new MutationObserver(() => killAds());
+    if (document.documentElement) {
+        observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 })();
