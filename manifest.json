@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "优酷暂停广告清除器 (Kill Youku Pause Ad)",
+  "version": "1.0.0",
+  "description": "专为优酷 VIP 打造的轻量插件，仅在视频暂停时自动清除大幅暂停广告浮层，不影响正常播放与点击恢复。",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://*.youku.com/*"
+  ],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "优酷暂停广告清除器"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youku.com/*"
+      ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "css": [
+        "content/content.css"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}

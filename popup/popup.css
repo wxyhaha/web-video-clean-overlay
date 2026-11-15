@@ -1,0 +1,351 @@
+:root {
+  --brand-accent-light: #1759d8;
+  --brand-accent-dark: #60a5fa;
+  --brand-text-light: #ffffff;
+  --brand-text-dark: #0f172a;
+
+  --bg-light: #f8fafc;
+  --bg-dark: #0f172a;
+  --surface-light: #ffffff;
+  --surface-dark: #1e293b;
+  --text-light: #0f172a;
+  --text-dark: #f1f5f9;
+  --muted-light: #475569;
+  --muted-dark: #94a3b8;
+  --border-light: #e2e8f0;
+  --border-dark: #334155;
+  --focus-light: #d97706;
+  --focus-dark: #fbbf24;
+
+  --badge-on-bg-light: #dcfce7;
+  --badge-on-bg-dark: #14532d;
+  --badge-on-text-light: #166534;
+  --badge-on-text-dark: #86efac;
+
+  --badge-off-bg-light: #fee2e2;
+  --badge-off-bg-dark: #7f1d1d;
+  --badge-off-text-light: #991b1b;
+  --badge-off-text-dark: #fca5a5;
+
+  --secondary-hover-light: #f1f5f9;
+  --secondary-hover-dark: #334155;
+
+  --scrollbar-track-light: #f1f5f9;
+  --scrollbar-track-dark: #0f172a;
+  --scrollbar-thumb-light: #64748b;
+  --scrollbar-thumb-dark: #94a3b8;
+
+  --accent-color: var(--brand-accent-light);
+  --brand-text: var(--brand-text-light);
+  --bg-color: var(--bg-light);
+  --surface-color: var(--surface-light);
+  --text-color: var(--text-light);
+  --muted-color: var(--muted-light);
+  --border-color: var(--border-light);
+  --focus-color: var(--focus-light);
+  --badge-on-bg: var(--badge-on-bg-light);
+  --badge-on-text: var(--badge-on-text-light);
+  --badge-off-bg: var(--badge-off-bg-light);
+  --badge-off-text: var(--badge-off-text-light);
+  --secondary-hover: var(--secondary-hover-light);
+  --scrollbar-track: var(--scrollbar-track-light);
+  --scrollbar-thumb: var(--scrollbar-thumb-light);
+
+  @media (prefers-color-scheme: dark) {
+    --accent-color: var(--brand-accent-dark);
+    --brand-text: var(--brand-text-dark);
+    --bg-color: var(--bg-dark);
+    --surface-color: var(--surface-dark);
+    --text-color: var(--text-dark);
+    --muted-color: var(--muted-dark);
+    --border-color: var(--border-dark);
+    --focus-color: var(--focus-dark);
+    --badge-on-bg: var(--badge-on-bg-dark);
+    --badge-on-text: var(--badge-on-text-dark);
+    --badge-off-bg: var(--badge-off-bg-dark);
+    --badge-off-text: var(--badge-off-text-dark);
+    --secondary-hover: var(--secondary-hover-dark);
+    --scrollbar-track: var(--scrollbar-track-dark);
+    --scrollbar-thumb: var(--scrollbar-thumb-dark);
+  }
+
+  @supports (color: light-dark(white, black)) {
+    --accent-color: light-dark(var(--brand-accent-light), var(--brand-accent-dark));
+    --brand-text: light-dark(var(--brand-text-light), var(--brand-text-dark));
+    --bg-color: light-dark(var(--bg-light), var(--bg-dark));
+    --surface-color: light-dark(var(--surface-light), var(--surface-dark));
+    --text-color: light-dark(var(--text-light), var(--text-dark));
+    --muted-color: light-dark(var(--muted-light), var(--muted-dark));
+    --border-color: light-dark(var(--border-light), var(--border-dark));
+    --focus-color: light-dark(var(--focus-light), var(--focus-dark));
+    --badge-on-bg: light-dark(var(--badge-on-bg-light), var(--badge-on-bg-dark));
+    --badge-on-text: light-dark(var(--badge-on-text-light), var(--badge-on-text-dark));
+    --badge-off-bg: light-dark(var(--badge-off-bg-light), var(--badge-off-bg-dark));
+    --badge-off-text: light-dark(var(--badge-off-text-light), var(--badge-off-text-dark));
+    --secondary-hover: light-dark(var(--secondary-hover-light), var(--secondary-hover-dark));
+    --scrollbar-track: light-dark(var(--scrollbar-track-light), var(--scrollbar-track-dark));
+    --scrollbar-thumb: light-dark(var(--scrollbar-thumb-light), var(--scrollbar-thumb-dark));
+  }
+
+  color-scheme: light dark;
+  accent-color: var(--accent-color);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  min-height: 220px;
+  margin: 0;
+  padding: 14px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  accent-color: var(--accent-color);
+}
+
+.popup-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--muted-color);
+}
+
+.status-badge {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-on {
+  background-color: var(--badge-on-bg);
+  color: var(--badge-on-text);
+}
+
+.status-off {
+  background-color: var(--badge-off-bg);
+  color: var(--badge-off-text);
+}
+
+.card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.toggle-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.switch-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+input[type="checkbox"][switch] {
+  accent-color: var(--accent-color);
+  margin: 0;
+  cursor: pointer;
+}
+
+input[type="checkbox"][switch]:focus-visible {
+  outline: 3px solid var(--focus-color);
+  outline-offset: 4px;
+}
+
+@supports not (accent-color: var(--accent-color)) {
+  form input[type="checkbox"].visually-hidden {
+    position: absolute !important;
+    clip-path: inset(50%) !important;
+    overflow: hidden !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .switch-row {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  input[type="checkbox"] + span::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid var(--border-color);
+    background: var(--surface-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  input[type="checkbox"]:focus-visible + span::before {
+    outline: 3px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  input[type="checkbox"]:checked + span::before {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+
+  input[type="checkbox"]:checked + span::after {
+    content: "✓";
+    position: absolute;
+    left: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--brand-text);
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+}
+
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted-color);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--muted-color);
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background-color: var(--accent-color);
+  color: var(--brand-text);
+}
+
+.btn.primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.btn.secondary {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.btn.secondary:hover:not(:disabled) {
+  background-color: var(--secondary-hover);
+}
+
+.feedback {
+  margin: 0;
+  min-height: 18px;
+  font-size: 12px;
+  color: var(--muted-color);
+  text-align: center;
+}
+
+@supports not (scrollbar-color: auto) {
+  body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+  }
+
+  body::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+}

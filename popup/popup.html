@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>优酷暂停广告清除器</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup-container">
+    <header class="header">
+      <div class="brand">
+        <img src="../icons/icon-48.png" alt="插件图标" width="28" height="28" class="brand-icon">
+        <div>
+          <h1 class="title">优酷暂停广告清除器</h1>
+          <p class="subtitle">VIP 专属 · 仅处理暂停广告</p>
+        </div>
+      </div>
+      <span id="status-badge" class="status-badge status-on">运行中</span>
+    </header>
+
+    <section class="card">
+      <form class="toggle-form" id="settings-form">
+        <label class="switch-row" for="enable-switch">
+          <input type="checkbox" id="enable-switch" class="visually-hidden" switch checked>
+          <span class="switch-text">启用暂停广告自动清除</span>
+        </label>
+        <p class="hint">仅隐藏暂停状态下的广告浮层，不拦截网络请求，也不影响点击画面恢复播放。</p>
+      </form>
+    </section>
+
+    <section class="card stats-grid" aria-label="统计信息">
+      <div class="stat-item">
+        <span class="stat-label">累计清除次数</span>
+        <strong id="cleared-count" class="stat-value">0</strong>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">自定义规则</span>
+        <strong id="custom-count" class="stat-value">0</strong>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button type="button" id="pick-btn" class="btn primary">手动点选广告元素</button>
+      <button type="button" id="reset-rules-btn" class="btn secondary">重置自定义屏蔽规则</button>
+    </section>
+
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+/*
+ * Static anti-flicker rules & safe hide class for Youku pause ads.
+ * Uses visibility/display hiding instead of DOM removal so Youku's player
+ * framework (React/Rax) never throws NotFoundError on resume.
+ */
+
+html:not([data-yk-ad-killer-disabled="true"]) #youku-pause-resource-container,
+html:not([data-yk-ad-killer-disabled="true"]) .advertise-layer,
+html:not([data-yk-ad-killer-disabled="true"]) .youku-advertise-layer,
+html:not([data-yk-ad-killer-disabled="true"]) .advertise-youku-tips,
+html:not([data-yk-ad-killer-disabled="true"]) .youku-player-paused-overlay,
+html:not([data-yk-ad-killer-disabled="true"]) .youku-player-pause-ad,
+html:not([data-yk-ad-killer-disabled="true"]) #youku-pause-container,
+html:not([data-yk-ad-killer-disabled="true"]) div.callEnd_box,
+html:not([data-yk-ad-killer-disabled="true"]) div.callEnd_fixed_box,
+html:not([data-yk-ad-killer-disabled="true"]) div[sourcetype*="Sbanner"],
+html:not([data-yk-ad-killer-disabled="true"]) .p-layer-pause-wrap,
+html:not([data-yk-ad-killer-disabled="true"]) .yk-pause-layer,
+html:not([data-yk-ad-killer-disabled="true"]) .h5player-paused-content,
+html:not([data-yk-ad-killer-disabled="true"]) div[class*="pause-ad"],
+html:not([data-yk-ad-killer-disabled="true"]) div[class*="ad-pause"],
+html:not([data-yk-ad-killer-disabled="true"]) div[class*="pauseAd"],
+html:not([data-yk-ad-killer-disabled="true"]) div[class*="PauseAd"],
+html:not([data-yk-ad-killer-disabled="true"]) div[class*="pause_ad"],
+html:not([data-yk-ad-killer-disabled="true"]) div[id*="pause-ad"],
+html:not([data-yk-ad-killer-disabled="true"]) div[id*="pause_ad"],
+html:not([data-yk-ad-killer-disabled="true"]) .h5-ext-layer div[class*="pause"],
+html:not([data-yk-ad-killer-disabled="true"]) .h5-ext-layer div[class*="ad-"],
+html:not([data-yk-ad-killer-disabled="true"]) .h5-ext-layer div[class*="-ad"],
+html:not([data-yk-ad-killer-disabled="true"]) .yk-pause-ad-killed {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  z-index: -9999 !important;
+}
+
+/* Manual element picker highlight & banner */
+.yk-ad-picker-highlight {
+  outline: 3px solid #f43f5e !important;
+  outline-offset: -3px !important;
+  background-color: rgba(244, 63, 94, 0.16) !important;
+  cursor: crosshair !important;
+}
+
+.yk-ad-picker-banner {
+  position: fixed !important;
+  top: 16px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 16px !important;
+  border-radius: 9999px !important;
+  background: rgba(15, 23, 42, 0.94) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  pointer-events: auto !important;
+}
+
+.yk-ad-picker-banner-text {
+  margin: 0 !important;
+  color: #f8fafc !important;
+  white-space: nowrap !important;
+}
+
+.yk-ad-picker-banner-cancel {
+  appearance: none !important;
+  border: 1px solid rgba(248, 250, 252, 0.3) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border-radius: 9999px !important;
+  padding: 4px 12px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  cursor: pointer !important;
+}
+
+.yk-ad-picker-banner-cancel:hover {
+  background: rgba(244, 63, 94, 0.85) !important;
+  border-color: #f43f5e !important;
+}
