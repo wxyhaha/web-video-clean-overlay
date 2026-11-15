@@ -7,6 +7,11 @@
   globalThis.__ykPauseAdKillerLoaded = true;
 
   const STATIC_PAUSE_AD_SELECTORS = [
+    '#click-close',
+    '.ad-effect',
+    '.ad-effect-details',
+    'div[class*="ad-effect"]',
+    'div.ad-button',
     '#youku-pause-resource-container',
     '.advertise-layer',
     '.youku-advertise-layer',

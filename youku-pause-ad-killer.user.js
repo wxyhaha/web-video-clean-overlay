@@ -17,6 +17,11 @@
 
     // 1. 静态样式层：在页面加载早期注入，毫秒级隐式消除，杜绝广告闪烁
     const cssRules = `
+        #click-close,
+        .ad-effect,
+        .ad-effect-details,
+        div[class*="ad-effect"],
+        div.ad-button,
         #youku-pause-resource-container,
         .advertise-layer,
         .youku-advertise-layer,
@@ -63,6 +68,11 @@
     // 2. 动态扫描与自动关闭逻辑
     const CLOSE_TEXTS = new Set(['×', '✕', '✖', 'X', '关闭', '关闭广告', '跳过', '跳过广告']);
     const STATIC_SELECTORS = [
+        '#click-close',
+        '.ad-effect',
+        '.ad-effect-details',
+        'div[class*="ad-effect"]',
+        'div.ad-button',
         '#youku-pause-resource-container',
         '.advertise-layer',
         '.youku-advertise-layer',

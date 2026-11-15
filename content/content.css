@@ -4,6 +4,10 @@
  * framework (React/Rax) never throws NotFoundError on resume.
  */
 
+html:not([data-yk-ad-killer-disabled="true"]) #click-close,
+html:not([data-yk-ad-killer-disabled="true"]) .ad-effect,
+html:not([data-yk-ad-killer-disabled="true"]) .ad-effect-details,
+html:not([data-yk-ad-killer-disabled="true"]) div[class*="ad-effect"],
 html:not([data-yk-ad-killer-disabled="true"]) #youku-pause-resource-container,
 html:not([data-yk-ad-killer-disabled="true"]) .advertise-layer,
 html:not([data-yk-ad-killer-disabled="true"]) .youku-advertise-layer,
