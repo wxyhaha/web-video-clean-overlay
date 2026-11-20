@@ -161,6 +161,26 @@
         return true;
     }
 
+    window.addEventListener('keydown', (e) => {
+        if (!enableMouseSeek) return;
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || document.activeElement?.isContentEditable) {
+            return;
+        }
+
+        if (e.key === 'ArrowLeft' || e.code === 'ArrowLeft') {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            handleMouseSeek(-1);
+        } else if (e.key === 'ArrowRight' || e.code === 'ArrowRight') {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            handleMouseSeek(1);
+        }
+    }, true);
+
     window.addEventListener('mouseup', (e) => {
         if (!enableMouseSeek) return;
         if (e.button === 3 || e.button === 4) {

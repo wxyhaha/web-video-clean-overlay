@@ -126,7 +126,7 @@
     }, 800);
   }
 
-  function handleMouseSeek(direction) {
+  function handleSeek(direction) {
     // direction: -1 为后退，1 为前进
     const video = document.querySelector('video');
     if (!video || isNaN(video.duration)) return false;
@@ -581,12 +581,10 @@
     if (!('mediaSession' in navigator)) return;
     try {
       navigator.mediaSession.setActionHandler('seekbackward', (details) => {
-        const step = mouseSeekStep || 5;
-        handleMouseSeek(-1);
+        handleSeek(-1);
       });
       navigator.mediaSession.setActionHandler('seekforward', (details) => {
-        const step = mouseSeekStep || 5;
-        handleMouseSeek(1);
+        handleSeek(1);
       });
     } catch (e) {
       // 部分浏览器不支持某些 action
@@ -987,6 +985,28 @@
       return false;
     });
 
+    // 监听键盘方向键 ← / →，彻底拦截优酷默认的 15 秒并按自定义秒数步进
+    window.addEventListener('keydown', (e) => {
+      if (!enableMouseSeek) return;
+      // 如果焦点在输入框，不拦截打字
+      const activeTag = document.activeElement ? document.activeElement.tagName : '';
+      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || document.activeElement?.isContentEditable) {
+        return;
+      }
+
+      if (e.key === 'ArrowLeft' || e.code === 'ArrowLeft') {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        handleSeek(-1);
+      } else if (e.key === 'ArrowRight' || e.code === 'ArrowRight') {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        handleSeek(1);
+      }
+    }, true);
+
     // 监听鼠标侧键（前进 button === 4, 后退 button === 3）
     window.addEventListener('mouseup', (e) => {
       if (!enableMouseSeek) return;
@@ -995,7 +1015,7 @@
         e.stopPropagation();
         e.stopImmediatePropagation();
         const dir = e.button === 4 ? 1 : -1;
-        handleMouseSeek(dir);
+        handleSeek(dir);
       }
     }, true);
 
