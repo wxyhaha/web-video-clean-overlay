@@ -985,27 +985,46 @@
       return false;
     });
 
-    // 监听键盘方向键 ← / →，彻底拦截优酷默认的 15 秒并按自定义秒数步进
-    window.addEventListener('keydown', (e) => {
-      if (!enableMouseSeek) return;
-      // 如果焦点在输入框，不拦截打字
-      const activeTag = document.activeElement ? document.activeElement.tagName : '';
-      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || document.activeElement?.isContentEditable) {
-        return;
-      }
+    // 全生命周期拦截键盘左右方向键（同时封死 keydown, keyup, keypress，防止优酷双重触发）
+    const isArrowKey = (e) => (
+      e.key === 'ArrowLeft' || e.code === 'ArrowLeft' || e.keyCode === 37 ||
+      e.key === 'ArrowRight' || e.code === 'ArrowRight' || e.keyCode === 39
+    );
 
-      if (e.key === 'ArrowLeft' || e.code === 'ArrowLeft') {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+    const isInputFocused = () => {
+      const activeTag = document.activeElement ? document.activeElement.tagName : '';
+      return activeTag === 'INPUT' || activeTag === 'TEXTAREA' || Boolean(document.activeElement?.isContentEditable);
+    };
+
+    // 1. keydown 负责执行我们的自定义步进并阻断事件向下传递
+    const handleKeydownCapture = (e) => {
+      if (!enableMouseSeek || isInputFocused() || !isArrowKey(e)) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      if (e.key === 'ArrowLeft' || e.code === 'ArrowLeft' || e.keyCode === 37) {
         handleSeek(-1);
-      } else if (e.key === 'ArrowRight' || e.code === 'ArrowRight') {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+      } else {
         handleSeek(1);
       }
-    }, true);
+    };
+
+    // 2. keyup 与 keypress 坚决吃掉，防止优酷在松开按键时二次触发快进
+    const preventArrowLeak = (e) => {
+      if (!enableMouseSeek || isInputFocused() || !isArrowKey(e)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    };
+
+    window.addEventListener('keydown', handleKeydownCapture, true);
+    document.addEventListener('keydown', handleKeydownCapture, true);
+    window.addEventListener('keyup', preventArrowLeak, true);
+    document.addEventListener('keyup', preventArrowLeak, true);
+    window.addEventListener('keypress', preventArrowLeak, true);
+    document.addEventListener('keypress', preventArrowLeak, true);
 
     // 监听鼠标侧键（前进 button === 4, 后退 button === 3）
     window.addEventListener('mouseup', (e) => {

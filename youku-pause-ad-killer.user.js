@@ -161,25 +161,42 @@
         return true;
     }
 
-    window.addEventListener('keydown', (e) => {
-        if (!enableMouseSeek) return;
-        const activeTag = document.activeElement ? document.activeElement.tagName : '';
-        if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || document.activeElement?.isContentEditable) {
-            return;
-        }
+    // 全生命周期拦截键盘左右方向键（封死 keydown, keyup, keypress，防止优酷双重触发）
+    const isArrowKey = (e) => (
+        e.key === 'ArrowLeft' || e.code === 'ArrowLeft' || e.keyCode === 37 ||
+        e.key === 'ArrowRight' || e.code === 'ArrowRight' || e.keyCode === 39
+    );
 
-        if (e.key === 'ArrowLeft' || e.code === 'ArrowLeft') {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
+    const isInputFocused = () => {
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        return activeTag === 'INPUT' || activeTag === 'TEXTAREA' || Boolean(document.activeElement?.isContentEditable);
+    };
+
+    const handleKeydownCapture = (e) => {
+        if (!enableMouseSeek || isInputFocused() || !isArrowKey(e)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (e.key === 'ArrowLeft' || e.code === 'ArrowLeft' || e.keyCode === 37) {
             handleMouseSeek(-1);
-        } else if (e.key === 'ArrowRight' || e.code === 'ArrowRight') {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
+        } else {
             handleMouseSeek(1);
         }
-    }, true);
+    };
+
+    const preventArrowLeak = (e) => {
+        if (!enableMouseSeek || isInputFocused() || !isArrowKey(e)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+    };
+
+    window.addEventListener('keydown', handleKeydownCapture, true);
+    document.addEventListener('keydown', handleKeydownCapture, true);
+    window.addEventListener('keyup', preventArrowLeak, true);
+    document.addEventListener('keyup', preventArrowLeak, true);
+    window.addEventListener('keypress', preventArrowLeak, true);
+    document.addEventListener('keypress', preventArrowLeak, true);
 
     window.addEventListener('mouseup', (e) => {
         if (!enableMouseSeek) return;
