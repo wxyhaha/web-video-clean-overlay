@@ -1,11 +1,14 @@
 // ==UserScript==
 // @name         优酷视频暂停广告清除器 (Youku Pause Ad Killer)
 // @namespace    https://github.com/wxyhaha/web-video-clean-overlay
-// @version      1.0.2
-// @description  专为优酷 VIP 用户打造，在视频暂停时自动清除大幅广告/推荐浮层，并修复因暂停画面缩小引发的黑屏问题
+// @version      1.1.0
+// @description  专为优酷 VIP 用户打造，在视频暂停时自动清除大幅广告/推荐浮层，修复暂停黑屏，并支持鼠标前进/后退侧键自定义秒数快进快退
 // @author       wxyhaha
 // @match        *://*.youku.com/*
 // @grant        GM_addStyle
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @run-at       document-start
 // @license      MIT
 // @homepageURL  https://github.com/wxyhaha/web-video-clean-overlay
@@ -15,8 +18,58 @@
 (function() {
     'use strict';
 
+    // 默认鼠标步进秒数（可通过油猴菜单自定义）
+    let mouseSeekStep = (typeof GM_getValue !== 'undefined') ? GM_getValue('mouseSeekStep', 5) : 5;
+    let enableMouseSeek = (typeof GM_getValue !== 'undefined') ? GM_getValue('enableMouseSeek', true) : true;
+
+    if (typeof GM_registerMenuCommand !== 'undefined') {
+        GM_registerMenuCommand(`⚙️ 设置快进/快退步长 (当前: ${mouseSeekStep}秒)`, () => {
+            const input = prompt('请输入鼠标侧键前进/后退的快进步长（秒）：', mouseSeekStep);
+            if (input !== null) {
+                const step = parseInt(input, 10);
+                if (!isNaN(step) && step > 0 && step <= 60) {
+                    mouseSeekStep = step;
+                    GM_setValue('mouseSeekStep', step);
+                    alert(`✅ 已成功将步长修改为 ${step} 秒！`);
+                } else {
+                    alert('❌ 请输入 1 到 60 之间的整数秒数');
+                }
+            }
+        });
+        GM_registerMenuCommand(`🖱️ 切换鼠标侧键控制进度 (当前: ${enableMouseSeek ? '已启用' : '已禁用'})`, () => {
+            enableMouseSeek = !enableMouseSeek;
+            GM_setValue('enableMouseSeek', enableMouseSeek);
+            alert(`已${enableMouseSeek ? '启用' : '禁用'}鼠标侧键快进快退功能`);
+        });
+    }
+
     // 1. 全局最强静态规则注入（包含防止视频画面被缩小成 158x84 导致黑屏的修复）
     const cssRules = `
+        /* 鼠标控制进度提示气泡 */
+        .yk-seek-tooltip {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 2147483647 !important;
+            background: rgba(15, 23, 42, 0.88) !important;
+            color: #ffffff !important;
+            padding: 12px 24px !important;
+            border-radius: 12px !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            font-size: 18px !important;
+            font-weight: 700 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+            pointer-events: none !important;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease !important;
+        }
+        .yk-seek-tooltip.show {
+            opacity: 1 !important;
+            transform: translate(-50%, -50%) scale(1.05) !important;
+        }
+
         .youku-film-player video,
         .h5player video,
         .ykplayer video,
@@ -61,18 +114,74 @@
         }
     `;
 
-    function injectStyle() {
-        if (typeof GM_addStyle !== 'undefined') {
-            GM_addStyle(cssRules);
-        } else {
-            const style = document.createElement('style');
-            style.textContent = cssRules;
-            (document.head || document.documentElement).appendChild(style);
-        }
+    if (typeof GM_addStyle !== 'undefined') {
+        GM_addStyle(cssRules);
+    } else {
+        const style = document.createElement('style');
+        style.textContent = cssRules;
+        (document.head || document.documentElement).appendChild(style);
     }
-    injectStyle();
 
-    // 2. 毫秒级高频扫描与自动关闭
+    // 2. 鼠标侧键快进/快退提示与控制
+    let tooltipEl = null;
+    let tooltipTimer = null;
+    function showSeekTooltip(text) {
+        if (!tooltipEl) {
+            tooltipEl = document.createElement('div');
+            tooltipEl.className = 'yk-seek-tooltip';
+            (document.body || document.documentElement).appendChild(tooltipEl);
+        }
+        tooltipEl.textContent = text;
+        tooltipEl.classList.add('show');
+        clearTimeout(tooltipTimer);
+        tooltipTimer = setTimeout(() => {
+            if (tooltipEl) tooltipEl.classList.remove('show');
+        }, 800);
+    }
+
+    function formatTime(sec) {
+        const s = Math.floor(sec || 0);
+        const m = Math.floor(s / 60);
+        const h = Math.floor(m / 60);
+        const mm = String(m % 60).padStart(2, '0');
+        const ss = String(s % 60).padStart(2, '0');
+        return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+    }
+
+    function handleMouseSeek(direction) {
+        const video = document.querySelector('video');
+        if (!video || isNaN(video.duration)) return false;
+
+        const delta = direction * (mouseSeekStep || 5);
+        const targetTime = Math.max(0, Math.min(video.duration, video.currentTime + delta));
+        video.currentTime = targetTime;
+
+        const sign = direction > 0 ? '⏩ 快进' : '⏪ 快退';
+        showSeekTooltip(`${sign} ${Math.abs(delta)}秒 (${formatTime(targetTime)} / ${formatTime(video.duration)})`);
+        return true;
+    }
+
+    window.addEventListener('mouseup', (e) => {
+        if (!enableMouseSeek) return;
+        if (e.button === 3 || e.button === 4) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            const dir = e.button === 4 ? 1 : -1;
+            handleMouseSeek(dir);
+        }
+    }, true);
+
+    window.addEventListener('mousedown', (e) => {
+        if (!enableMouseSeek) return;
+        if (e.button === 3 || e.button === 4) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }
+    }, true);
+
+    // 3. 毫秒级高频扫描与自动关闭
     const AD_SELECTORS = [
         '#click-close',
         '.ad-effect',
@@ -117,7 +226,7 @@
         }
     }
 
-    // 3. 轮询兜底与事件监听
+    // 4. 轮询兜底与事件监听
     setInterval(killAds, 250);
 
     document.addEventListener('pause', () => {

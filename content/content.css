@@ -4,6 +4,32 @@
  * framework (React/Rax) never throws NotFoundError on resume.
  */
 
+/* 鼠标控制进度提示气泡 */
+.yk-seek-tooltip {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 2147483647 !important;
+  background: rgba(15, 23, 42, 0.88) !important;
+  color: #ffffff !important;
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+  pointer-events: none !important;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease !important;
+}
+
+.yk-seek-tooltip.show {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1.05) !important;
+}
+
 /* 强行锁定视频画面满屏，严禁优酷暂停时将其缩小成 158x84 导致黑屏 */
 .youku-film-player video,
 .h5player video,

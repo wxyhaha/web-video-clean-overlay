@@ -107,6 +107,47 @@
   let mutationRafId = 0;
   let burstTimerIds = [];
   let pickerCleanup = null;
+  let enableMouseSeek = true;
+  let mouseSeekStep = 5;
+  let tooltipTimer = null;
+  let tooltipEl = null;
+
+  function showSeekTooltip(text) {
+    if (!tooltipEl) {
+      tooltipEl = document.createElement('div');
+      tooltipEl.className = 'yk-seek-tooltip';
+      (document.body || document.documentElement).appendChild(tooltipEl);
+    }
+    tooltipEl.textContent = text;
+    tooltipEl.classList.add('show');
+    clearTimeout(tooltipTimer);
+    tooltipTimer = setTimeout(() => {
+      if (tooltipEl) tooltipEl.classList.remove('show');
+    }, 800);
+  }
+
+  function handleMouseSeek(direction) {
+    // direction: -1 为后退，1 为前进
+    const video = document.querySelector('video');
+    if (!video || isNaN(video.duration)) return false;
+
+    const delta = direction * (mouseSeekStep || 5);
+    const targetTime = Math.max(0, Math.min(video.duration, video.currentTime + delta));
+    video.currentTime = targetTime;
+
+    const sign = direction > 0 ? '⏩ 快进' : '⏪ 快退';
+    showSeekTooltip(`${sign} ${Math.abs(delta)}秒 (${formatTime(targetTime)} / ${formatTime(video.duration)})`);
+    return true;
+  }
+
+  function formatTime(sec) {
+    const s = Math.floor(sec || 0);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    const mm = String(m % 60).padStart(2, '0');
+    const ss = String(s % 60).padStart(2, '0');
+    return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+  }
 
   /**
    * Read element class string safely for both HTML and SVG elements.
@@ -834,12 +875,16 @@
    */
   async function init() {
     try {
-      const stored = await chrome.storage.local.get(['enabled', 'customSelectors']);
+      const stored = await chrome.storage.local.get(['enabled', 'customSelectors', 'enableMouseSeek', 'mouseSeekStep']);
       isEnabled = typeof stored.enabled === 'boolean' ? stored.enabled : true;
       customSelectors = Array.isArray(stored.customSelectors) ? stored.customSelectors : [];
+      enableMouseSeek = stored.enableMouseSeek !== false;
+      mouseSeekStep = (typeof stored.mouseSeekStep === 'number' && stored.mouseSeekStep > 0) ? stored.mouseSeekStep : 5;
     } catch {
       isEnabled = true;
       customSelectors = [];
+      enableMouseSeek = true;
+      mouseSeekStep = 5;
     }
 
     syncDisabledAttribute(isEnabled);
@@ -895,6 +940,17 @@
           }
         })();
       }
+
+      if (changes.enableMouseSeek) {
+        enableMouseSeek = changes.enableMouseSeek.newValue !== false;
+      }
+
+      if (changes.mouseSeekStep) {
+        const val = changes.mouseSeekStep.newValue;
+        if (typeof val === 'number' && val > 0) {
+          mouseSeekStep = val;
+        }
+      }
     });
 
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -911,6 +967,28 @@
       }
       return false;
     });
+
+    // 监听鼠标侧键（前进 button === 4, 后退 button === 3）
+    window.addEventListener('mouseup', (e) => {
+      if (!enableMouseSeek) return;
+      if (e.button === 3 || e.button === 4) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        const dir = e.button === 4 ? 1 : -1;
+        handleMouseSeek(dir);
+      }
+    }, true);
+
+    window.addEventListener('mousedown', (e) => {
+      if (!enableMouseSeek) return;
+      if (e.button === 3 || e.button === 4) {
+        // 阻止浏览器默认的前进/后退网页历史操作
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    }, true);
 
     const observer = new MutationObserver((mutations) => {
       if (!isEnabled) return;

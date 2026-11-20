@@ -2,6 +2,8 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
   const enableSwitch = document.getElementById('enable-switch');
+  const mouseSeekSwitch = document.getElementById('mouse-seek-switch');
+  const seekStepInput = document.getElementById('seek-step-input');
   const statusBadge = document.getElementById('status-badge');
   const clearedCountEl = document.getElementById('cleared-count');
   const customCountEl = document.getElementById('custom-count');
@@ -13,9 +15,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedbackEl.textContent = message;
   }
 
-  function renderState({ enabled, clearedCount, customSelectors }) {
+  function renderState({ enabled, clearedCount, customSelectors, enableMouseSeek, mouseSeekStep }) {
     const isOn = enabled !== false;
     enableSwitch.checked = isOn;
+
+    const isSeekOn = enableMouseSeek !== false;
+    mouseSeekSwitch.checked = isSeekOn;
+    seekStepInput.value = (typeof mouseSeekStep === 'number' && mouseSeekStep > 0) ? mouseSeekStep : 5;
+    seekStepInput.disabled = !isSeekOn;
 
     statusBadge.textContent = isOn ? '运行中' : '已暂停';
     statusBadge.classList.toggle('status-on', isOn);
@@ -49,6 +56,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         'enabled',
         'clearedCount',
         'customSelectors',
+        'enableMouseSeek',
+        'mouseSeekStep',
       ]);
       renderState(data);
     } catch (err) {
@@ -56,6 +65,32 @@ document.addEventListener('DOMContentLoaded', async () => {
       setFeedback('读取设置失败，请重试');
     }
   }
+
+  mouseSeekSwitch.addEventListener('change', async (event) => {
+    const nextVal = Boolean(event.target.checked);
+    seekStepInput.disabled = !nextVal;
+    try {
+      await chrome.storage.local.set({ enableMouseSeek: nextVal });
+      setFeedback(nextVal ? '已开启鼠标前进/后退键控制进度' : '已关闭鼠标控制进度');
+    } catch (err) {
+      console.error(err);
+      setFeedback('保存设置失败');
+    }
+  });
+
+  seekStepInput.addEventListener('change', async (event) => {
+    let step = parseInt(event.target.value, 10);
+    if (isNaN(step) || step < 1) step = 1;
+    if (step > 60) step = 60;
+    event.target.value = step;
+    try {
+      await chrome.storage.local.set({ mouseSeekStep: step });
+      setFeedback(`步进已更新为 ${step} 秒`);
+    } catch (err) {
+      console.error(err);
+      setFeedback('保存步进秒数失败');
+    }
+  });
 
   enableSwitch.addEventListener('change', async (event) => {
     const nextEnabled = Boolean(event.target.checked);
@@ -112,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local') return;
-    if (changes.enabled || changes.clearedCount || changes.customSelectors) {
+    if (changes.enabled || changes.clearedCount || changes.customSelectors || changes.enableMouseSeek || changes.mouseSeekStep) {
       void loadAndRender();
     }
   });

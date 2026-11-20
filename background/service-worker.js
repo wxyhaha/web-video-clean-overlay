@@ -4,6 +4,8 @@ const DEFAULT_STORAGE = {
   enabled: true,
   clearedCount: 0,
   customSelectors: [],
+  mouseSeekStep: 5, // 默认鼠标侧键快进/快退 5 秒
+  enableMouseSeek: true,
 };
 
 const BADGE_COLOR = '#0066ff';
@@ -24,6 +26,12 @@ chrome.runtime.onInstalled.addListener(async () => {
     }
     if (!Array.isArray(existing.customSelectors)) {
       updates.customSelectors = DEFAULT_STORAGE.customSelectors;
+    }
+    if (typeof existing.mouseSeekStep !== 'number' || existing.mouseSeekStep <= 0) {
+      updates.mouseSeekStep = DEFAULT_STORAGE.mouseSeekStep;
+    }
+    if (typeof existing.enableMouseSeek !== 'boolean') {
+      updates.enableMouseSeek = DEFAULT_STORAGE.enableMouseSeek;
     }
 
     if (Object.keys(updates).length > 0) {

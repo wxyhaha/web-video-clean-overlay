@@ -27,6 +27,21 @@
           <span class="switch-text">启用暂停广告自动清除</span>
         </label>
         <p class="hint">仅隐藏暂停状态下的广告浮层，不拦截网络请求，也不影响点击画面恢复播放。</p>
+
+        <hr class="divider">
+
+        <label class="switch-row" for="mouse-seek-switch">
+          <input type="checkbox" id="mouse-seek-switch" class="visually-hidden" switch checked>
+          <span class="switch-text">鼠标前进/后退键控制播放进度</span>
+        </label>
+        <div class="step-setting-row">
+          <label for="seek-step-input" class="step-label">快进/快退步长 (秒)：</label>
+          <div class="step-input-wrap">
+            <input type="number" id="seek-step-input" min="1" max="60" value="5" class="step-input">
+            <span class="step-unit">秒</span>
+          </div>
+        </div>
+        <p class="hint">按鼠标后退键快退，前进键快进；附带轻量进度提示气泡。</p>
       </form>
     </section>
 
