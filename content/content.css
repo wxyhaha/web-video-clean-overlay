@@ -4,6 +4,20 @@
  * framework (React/Rax) never throws NotFoundError on resume.
  */
 
+/* 强行锁定视频画面满屏，严禁优酷暂停时将其缩小成 158x84 导致黑屏 */
+.youku-film-player video,
+.h5player video,
+.ykplayer video,
+#ykPlayer video,
+#player video,
+video.h5-ext-layer-video {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
 html:not([data-yk-ad-killer-disabled="true"]) #click-close,
 html:not([data-yk-ad-killer-disabled="true"]) .ad-effect,
 html:not([data-yk-ad-killer-disabled="true"]) .ad-effect-details,

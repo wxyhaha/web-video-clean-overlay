@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         优酷视频暂停广告清除器 (Youku Pause Ad Killer)
 // @namespace    https://github.com/wxyhaha/web-video-clean-overlay
-// @version      1.0.1
-// @description  专为优酷 VIP 用户打造，在视频暂停时自动清除大幅广告/推荐浮层，不影响正常播放、字幕与点击恢复
+// @version      1.0.2
+// @description  专为优酷 VIP 用户打造，在视频暂停时自动清除大幅广告/推荐浮层，并修复因暂停画面缩小引发的黑屏问题
 // @author       wxyhaha
 // @match        *://*.youku.com/*
 // @grant        GM_addStyle
@@ -15,8 +15,21 @@
 (function() {
     'use strict';
 
-    // 1. 全局最强静态规则注入（覆盖 #click-close, .ad-effect 等最新特征）
+    // 1. 全局最强静态规则注入（包含防止视频画面被缩小成 158x84 导致黑屏的修复）
     const cssRules = `
+        .youku-film-player video,
+        .h5player video,
+        .ykplayer video,
+        #ykPlayer video,
+        #player video,
+        video.h5-ext-layer-video {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: contain !important;
+        }
+
         #click-close,
         .ad-effect,
         .ad-effect-details,
@@ -77,6 +90,19 @@
     ];
 
     function killAds() {
+        // 还原被暂停恶意缩小的 video 尺寸
+        document.querySelectorAll('video').forEach(v => {
+            if (v.offsetWidth > 0 && v.offsetWidth < 300) {
+                v.style.setProperty('width', '100%', 'important');
+                v.style.setProperty('height', '100%', 'important');
+                v.style.setProperty('object-fit', 'contain', 'important');
+                if (v.parentElement && v.parentElement.offsetWidth < 300) {
+                    v.parentElement.style.setProperty('width', '100%', 'important');
+                    v.parentElement.style.setProperty('height', '100%', 'important');
+                }
+            }
+        });
+
         for (const sel of AD_SELECTORS) {
             document.querySelectorAll(sel).forEach(el => {
                 const closeBtn = el.querySelector('[class*="close" i], [title*="关闭"]');

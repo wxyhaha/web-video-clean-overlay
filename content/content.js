@@ -517,9 +517,27 @@
   }
 
   /**
+   * 恢复被优酷在暂停时缩小的视频尺寸，防止黑屏
+   */
+  function restoreVideoSize() {
+    document.querySelectorAll('video').forEach((v) => {
+      if (v.offsetWidth > 0 && v.offsetWidth < 300) {
+        v.style.setProperty('width', '100%', 'important');
+        v.style.setProperty('height', '100%', 'important');
+        v.style.setProperty('object-fit', 'contain', 'important');
+        if (v.parentElement && v.parentElement.offsetWidth < 300) {
+          v.parentElement.style.setProperty('width', '100%', 'important');
+          v.parentElement.style.setProperty('height', '100%', 'important');
+        }
+      }
+    });
+  }
+
+  /**
    * Scan DOM for pause ads using static rules, custom rules, and heuristics.
    */
   async function scanAndClearPauseAds() {
+    restoreVideoSize();
     if (!isEnabled) return;
     if (isScanning) {
       rescanRequested = true;
