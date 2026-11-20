@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "优酷暂停广告清除器 (Kill Youku Pause Ad)",
-  "version": "1.0.0",
-  "description": "专为优酷 VIP 打造的轻量插件，仅在视频暂停时自动清除大幅暂停广告浮层，不影响正常播放与点击恢复。",
+  "version": "1.1.0",
+  "description": "专为优酷 VIP 打造的轻量插件，清除暂停广告与黑屏，支持鼠标前进/后退键自定义秒数快进快退。",
   "permissions": [
     "storage",
     "tabs"
