@@ -575,6 +575,25 @@
   }
 
   /**
+   * 劫持并覆写浏览器与优酷的 MediaSession 步进，彻底覆写 15 秒默认值
+   */
+  function overrideMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+        const step = mouseSeekStep || 5;
+        handleMouseSeek(-1);
+      });
+      navigator.mediaSession.setActionHandler('seekforward', (details) => {
+        const step = mouseSeekStep || 5;
+        handleMouseSeek(1);
+      });
+    } catch (e) {
+      // 部分浏览器不支持某些 action
+    }
+  }
+
+  /**
    * Scan DOM for pause ads using static rules, custom rules, and heuristics.
    */
   async function scanAndClearPauseAds() {
@@ -989,6 +1008,15 @@
         e.stopImmediatePropagation();
       }
     }, true);
+
+    // 启动高频守护轮询（与油猴脚本完全一致，彻底杜绝黑屏）
+    setInterval(() => {
+      if (isEnabled) {
+        restoreVideoSize();
+        scanAndClearPauseAds();
+        overrideMediaSession();
+      }
+    }, 250);
 
     const observer = new MutationObserver((mutations) => {
       if (!isEnabled) return;
